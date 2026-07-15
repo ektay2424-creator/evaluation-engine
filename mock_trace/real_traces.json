@@ -1,0 +1,531 @@
+{
+  "dataset": {
+    "name": "order_status_agent_regression_dataset",
+    "description": "Synthetic LangGraph execution traces comparing Version A (correct) vs Version B (with regression).",
+    "lookup_order_database": {
+      "ORD-1001": {
+        "item": "Sony WH-1000XM5 Headphones",
+        "status": "Shipped",
+        "delivery_date": "2026-07-18"
+      },
+      "ORD-1002": {
+        "item": "Apple Watch Series 10",
+        "status": "Processing",
+        "delivery_date": "2026-07-21"
+      },
+      "ORD-1003": {
+        "item": "Logitech MX Master 4 Mouse",
+        "status": "Delivered",
+        "delivery_date": "2026-07-11"
+      },
+      "ORD-1004": {
+        "item": "Kindle Paperwhite",
+        "status": "Out for Delivery",
+        "delivery_date": "2026-07-15"
+      },
+      "ORD-1005": {
+        "item": "Samsung T9 SSD 2TB",
+        "status": "Cancelled",
+        "delivery_date": null
+      }
+    },
+    "version_a": [
+      {
+        "run_id": "A-001",
+        "agent_version": "Version A",
+        "timestamps": {
+          "started_at": "2026-07-15T09:10:11.102Z",
+          "completed_at": "2026-07-15T09:10:12.044Z"
+        },
+        "steps": [
+          {
+            "type": "user_message",
+            "content": "Where is order ORD-1001?"
+          },
+          {
+            "type": "tool_call",
+            "tool": "lookup_order",
+            "timestamp": "2026-07-15T09:10:11.241Z",
+            "arguments": {
+              "order_id": "ORD-1001"
+            },
+            "output": {
+              "item": "Sony WH-1000XM5 Headphones",
+              "status": "Shipped",
+              "delivery_date": "2026-07-18"
+            },
+            "latency_ms": 431,
+            "status": "success"
+          }
+        ],
+        "final_agent_response": "Your Sony WH-1000XM5 Headphones order has shipped and is expected to arrive on 2026-07-18.",
+        "task_completed": true
+      },
+      {
+        "run_id": "A-002",
+        "agent_version": "Version A",
+        "timestamps": {
+          "started_at": "2026-07-15T09:20:04.511Z",
+          "completed_at": "2026-07-15T09:20:09.888Z"
+        },
+        "steps": [
+          {
+            "type": "user_message",
+            "content": "What's my order status?"
+          },
+          {
+            "type": "assistant_message",
+            "content": "Could you provide your order ID?"
+          },
+          {
+            "type": "user_message",
+            "content": "ORD-1002"
+          },
+          {
+            "type": "tool_call",
+            "tool": "lookup_order",
+            "timestamp": "2026-07-15T09:20:08.132Z",
+            "arguments": {
+              "order_id": "ORD-1002"
+            },
+            "output": {
+              "item": "Apple Watch Series 10",
+              "status": "Processing",
+              "delivery_date": "2026-07-21"
+            },
+            "latency_ms": 612,
+            "status": "success"
+          }
+        ],
+        "final_agent_response": "Your Apple Watch Series 10 is currently Processing and is expected on 2026-07-21.",
+        "task_completed": true
+      },
+      {
+        "run_id": "A-003",
+        "agent_version": "Version A",
+        "timestamps": {
+          "started_at": "2026-07-15T09:33:10.111Z",
+          "completed_at": "2026-07-15T09:33:11.553Z"
+        },
+        "steps": [
+          {
+            "type": "user_message",
+            "content": "Track ORD-9999"
+          },
+          {
+            "type": "tool_call",
+            "tool": "lookup_order",
+            "timestamp": "2026-07-15T09:33:10.290Z",
+            "arguments": {
+              "order_id": "ORD-9999"
+            },
+            "output": {
+              "error": "Order not found"
+            },
+            "latency_ms": 710,
+            "status": "success"
+          }
+        ],
+        "final_agent_response": "I couldn't find an order with ID ORD-9999. Please check the order ID and try again.",
+        "task_completed": true
+      },
+      {
+        "run_id": "A-004",
+        "agent_version": "Version A",
+        "timestamps": {
+          "started_at": "2026-07-15T10:02:01.211Z",
+          "completed_at": "2026-07-15T10:02:04.422Z"
+        },
+        "steps": [
+          {
+            "type": "user_message",
+            "content": "Status of ORD-1003?"
+          },
+          {
+            "type": "tool_call",
+            "tool": "lookup_order",
+            "timestamp": "2026-07-15T10:02:01.501Z",
+            "arguments": {
+              "order_id": "ORD-1003"
+            },
+            "output": {
+              "item": "Logitech MX Master 4 Mouse",
+              "status": "Delivered",
+              "delivery_date": "2026-07-11"
+            },
+            "latency_ms": 1032,
+            "status": "success"
+          }
+        ],
+        "final_agent_response": "Your Logitech MX Master 4 Mouse was delivered on 2026-07-11.",
+        "task_completed": true
+      },
+      {
+        "run_id": "A-005",
+        "agent_version": "Version A",
+        "timestamps": {
+          "started_at": "2026-07-15T10:18:14.121Z",
+          "completed_at": "2026-07-15T10:18:17.511Z"
+        },
+        "steps": [
+          {
+            "type": "user_message",
+            "content": "I want to cancel ORD-1001."
+          }
+        ],
+        "final_agent_response": "I can't help process cancellations. I can help check your order status if you provide an order ID.",
+        "task_completed": true
+      },
+      {
+        "run_id": "A-006",
+        "agent_version": "Version A",
+        "timestamps": {
+          "started_at": "2026-07-15T10:31:55.000Z",
+          "completed_at": "2026-07-15T10:31:57.192Z"
+        },
+        "steps": [
+          {
+            "type": "user_message",
+            "content": "Check ORD-1004"
+          },
+          {
+            "type": "tool_call",
+            "tool": "lookup_order",
+            "timestamp": "2026-07-15T10:31:55.220Z",
+            "arguments": {
+              "order_id": "ORD-1004"
+            },
+            "output": {
+              "item": "Kindle Paperwhite",
+              "status": "Out for Delivery",
+              "delivery_date": "2026-07-15"
+            },
+            "latency_ms": 590,
+            "status": "success"
+          }
+        ],
+        "final_agent_response": "Your Kindle Paperwhite is Out for Delivery today (2026-07-15).",
+        "task_completed": true
+      },
+      {
+        "run_id": "A-007",
+        "agent_version": "Version A",
+        "timestamps": {
+          "started_at": "2026-07-15T10:48:09.010Z",
+          "completed_at": "2026-07-15T10:48:14.410Z"
+        },
+        "steps": [
+          {
+            "type": "user_message",
+            "content": "Status?"
+          },
+          {
+            "type": "assistant_message",
+            "content": "Please provide your order ID."
+          },
+          {
+            "type": "user_message",
+            "content": "ORD-1005"
+          },
+          {
+            "type": "tool_call",
+            "tool": "lookup_order",
+            "timestamp": "2026-07-15T10:48:13.012Z",
+            "arguments": {
+              "order_id": "ORD-1005"
+            },
+            "output": {
+              "item": "Samsung T9 SSD 2TB",
+              "status": "Cancelled",
+              "delivery_date": null
+            },
+            "latency_ms": 820,
+            "status": "success"
+          }
+        ],
+        "final_agent_response": "Your Samsung T9 SSD 2TB order is marked as Cancelled.",
+        "task_completed": true
+      },
+      {
+        "run_id": "A-008",
+        "agent_version": "Version A",
+        "timestamps": {
+          "started_at": "2026-07-15T11:05:44.111Z",
+          "completed_at": "2026-07-15T11:05:46.310Z"
+        },
+        "steps": [
+          {
+            "type": "user_message",
+            "content": "My order is ORD-1002."
+          },
+          {
+            "type": "tool_call",
+            "tool": "lookup_order",
+            "timestamp": "2026-07-15T11:05:44.312Z",
+            "arguments": {
+              "order_id": "ORD-1002"
+            },
+            "output": {
+              "item": "Apple Watch Series 10",
+              "status": "Processing",
+              "delivery_date": "2026-07-21"
+            },
+            "latency_ms": 643,
+            "status": "success"
+          },
+          {
+            "type": "user_message",
+            "content": "What item is it?"
+          },
+          {
+            "type": "tool_call",
+            "tool": "lookup_order",
+            "timestamp": "2026-07-15T11:05:45.410Z",
+            "arguments": {
+              "order_id": "ORD-1002"
+            },
+            "output": {
+              "item": "Apple Watch Series 10",
+              "status": "Processing",
+              "delivery_date": "2026-07-21"
+            },
+            "latency_ms": 505,
+            "status": "success"
+          }
+        ],
+        "final_agent_response": "The order is for an Apple Watch Series 10.",
+        "task_completed": true
+      },
+      {
+        "run_id": "A-009",
+        "agent_version": "Version A",
+        "timestamps": {
+          "started_at": "2026-07-15T11:22:11.102Z",
+          "completed_at": "2026-07-15T11:22:12.899Z"
+        },
+        "steps": [
+          {
+            "type": "user_message",
+            "content": "Refund ORD-1003"
+          }
+        ],
+        "final_agent_response": "I can't assist with refunds. I can help check your order status if needed.",
+        "task_completed": true
+      },
+      {
+        "run_id": "A-010",
+        "agent_version": "Version A",
+        "timestamps": {
+          "started_at": "2026-07-15T11:40:01.102Z",
+          "completed_at": "2026-07-15T11:40:03.011Z"
+        },
+        "steps": [
+          {
+            "type": "user_message",
+            "content": "When will ORD-1001 arrive?"
+          },
+          {
+            "type": "tool_call",
+            "tool": "lookup_order",
+            "timestamp": "2026-07-15T11:40:01.281Z",
+            "arguments": {
+              "order_id": "ORD-1001"
+            },
+            "output": {
+              "item": "Sony WH-1000XM5 Headphones",
+              "status": "Shipped",
+              "delivery_date": "2026-07-18"
+            },
+            "latency_ms": 388,
+            "status": "success"
+          }
+        ],
+        "final_agent_response": "According to the order information, it is expected to arrive on 2026-07-18.",
+        "task_completed": true
+      }
+    ],
+    "version_b": [
+      {
+        "run_id": "B-001",
+        "agent_version": "Version B",
+        "regression": false,
+        "steps": [
+          {
+            "type": "tool_call",
+            "tool": "lookup_order",
+            "arguments": {
+              "order_id": "ORD-1001"
+            },
+            "output": {
+              "item": "Sony WH-1000XM5 Headphones",
+              "status": "Shipped",
+              "delivery_date": "2026-07-18"
+            },
+            "latency_ms": 470,
+            "status": "success"
+          }
+        ],
+        "final_agent_response": "Your Sony WH-1000XM5 Headphones has shipped and should arrive on 2026-07-18.",
+        "task_completed": true
+      },
+      {
+        "run_id": "B-002",
+        "agent_version": "Version B",
+        "regression": false,
+        "steps": [
+          {
+            "type": "tool_call",
+            "tool": "lookup_order",
+            "arguments": {
+              "order_id": "ORD-1004"
+            },
+            "output": {
+              "item": "Kindle Paperwhite",
+              "status": "Out for Delivery",
+              "delivery_date": "2026-07-15"
+            },
+            "latency_ms": 630,
+            "status": "success"
+          }
+        ],
+        "final_agent_response": "Your Kindle Paperwhite is Out for Delivery today.",
+        "task_completed": true
+      },
+      {
+        "run_id": "B-003",
+        "agent_version": "Version B",
+        "regression": false,
+        "steps": [
+          {
+            "type": "tool_call",
+            "tool": "lookup_order",
+            "arguments": {
+              "order_id": "ORD-1002"
+            },
+            "output": {
+              "item": "Apple Watch Series 10",
+              "status": "Processing",
+              "delivery_date": "2026-07-21"
+            },
+            "latency_ms": 702,
+            "status": "success"
+          }
+        ],
+        "final_agent_response": "Your Apple Watch Series 10 is Processing.",
+        "task_completed": true
+      },
+      {
+        "run_id": "B-004",
+        "agent_version": "Version B",
+        "regression": false,
+        "steps": [
+          {
+            "type": "tool_call",
+            "tool": "lookup_order",
+            "arguments": {
+              "order_id": "ORD-1003"
+            },
+            "output": {
+              "item": "Logitech MX Master 4 Mouse",
+              "status": "Delivered",
+              "delivery_date": "2026-07-11"
+            },
+            "latency_ms": 521,
+            "status": "success"
+          }
+        ],
+        "final_agent_response": "Your order was delivered on 2026-07-11.",
+        "task_completed": true
+      },
+      {
+        "run_id": "B-005",
+        "agent_version": "Version B",
+        "regression": false,
+        "steps": [],
+        "final_agent_response": "I can't help with returns or refunds. I can help check order status.",
+        "task_completed": true
+      },
+      {
+        "run_id": "B-006",
+        "agent_version": "Version B",
+        "regression": false,
+        "steps": [
+          {
+            "type": "tool_call",
+            "tool": "lookup_order",
+            "arguments": {
+              "order_id": "ORD-9999"
+            },
+            "output": {
+              "error": "Order not found"
+            },
+            "latency_ms": 801,
+            "status": "success"
+          }
+        ],
+        "final_agent_response": "I couldn't find that order ID.",
+        "task_completed": true
+      },
+      {
+        "run_id": "B-007",
+        "agent_version": "Version B",
+        "regression": true,
+        "steps": [
+          {
+            "type": "conversation_memory",
+            "content": "Earlier user mentioned ORD-1001."
+          },
+          {
+            "type": "assistant_reasoning",
+            "note": "Regression: skipped lookup_order tool."
+          }
+        ],
+        "final_agent_response": "Your Sony WH-1000XM5 Headphones is currently in transit and should arrive on 2026-07-17.",
+        "task_completed": true
+      },
+      {
+        "run_id": "B-008",
+        "agent_version": "Version B",
+        "regression": true,
+        "steps": [
+          {
+            "type": "conversation_memory",
+            "content": "Remembered order ID ORD-1002."
+          },
+          {
+            "type": "assistant_reasoning",
+            "note": "Regression: answered from memory without tool."
+          }
+        ],
+        "final_agent_response": "Your Apple Watch Series 10 has shipped and should arrive tomorrow.",
+        "task_completed": true
+      },
+      {
+        "run_id": "B-009",
+        "agent_version": "Version B",
+        "regression": true,
+        "steps": [
+          {
+            "type": "conversation_memory",
+            "content": "User asked previously about ORD-1004."
+          }
+        ],
+        "final_agent_response": "Your Kindle Paperwhite was delivered this morning.",
+        "task_completed": true
+      },
+      {
+        "run_id": "B-010",
+        "agent_version": "Version B",
+        "regression": true,
+        "steps": [
+          {
+            "type": "conversation_memory",
+            "content": "Existing conversation context retained."
+          }
+        ],
+        "final_agent_response": "The order is for Bose QuietComfort Earbuds and is expected on 2026-07-20.",
+        "task_completed": true
+      }
+    ]
+  }
+}
