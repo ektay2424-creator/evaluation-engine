@@ -1,0 +1,24 @@
+{
+  "run_id": "run_001",
+  "agent_version": "A",
+  "steps": [
+    {
+      "tool": "browse_location",
+      "args": {"location": "delhi ncr"},
+      "output": "12 hotels found",
+      "status": "success",
+      "timestamp_start": 0.0,
+      "timestamp_end": 1.2
+    },
+    {
+      "tool": "filter_price",
+      "args": {"price": "below 20k"},
+      "output": "5 hotels remaining",
+      "status": "success",
+      "timestamp_start": 1.2,
+      "timestamp_end": 2.0
+    }
+  ],
+  "task_completed": true,
+  "total_latency": 2.0
+}
