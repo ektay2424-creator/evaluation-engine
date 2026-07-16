@@ -17,51 +17,73 @@ def missing_tool_call(steps_a, steps_b):
     return findings
 
 def wrong_tool_called(steps_a, steps_b):
+    calls_a = _tool_call_steps(steps_a)
+    calls_b = _tool_call_steps(steps_b)
+
     findings = []
-    for i, step_a in enumerate(steps_a):
-        if step_a["type"] != "tool_call":
-            continue
-        if i >= len(steps_b):
-            continue
-
-        step_b = steps_b[i]
-        if step_b["type"] != "tool_call":
-            continue
-
-        if step_a["tool"] != step_b["tool"]:
+    min_length = min(len(calls_a), len(calls_b))
+    for i in range(min_length):
+        if calls_a[i]["tool"] != calls_b[i]["tool"]:
             findings.append({
                 "pattern": "wrong_tool_called",
                 "position": i,
-                "expected_tool": step_a["tool"],
-                "actual_tool": step_b["tool"]
+                "expected_tool": calls_a[i]["tool"],
+                "actual_tool": calls_b[i]["tool"]
             })
-
     return findings
 
 
 def extra_tool_call(steps_a, steps_b):
+    calls_a = _tool_call_steps(steps_a)
+    calls_b = _tool_call_steps(steps_b)
+
     findings = []
-    for i, step_b in enumerate(steps_b):
-        if step_b["type"] != "tool_call":
-            continue
-
-        if i >= len(steps_a):
+    for i, call_b in enumerate(calls_b):
+        if i >= len(calls_a):
             findings.append({
                 "pattern": "extra_tool_call",
                 "position": i,
-                "tool": step_b["tool"]
+                "tool": call_b["tool"]
             })
-            continue
-
-        step_a = steps_a[i]
-        if step_a["type"] != "tool_call":
-            findings.append({
-                "pattern": "extra_tool_call",
-                "position": i,
-                "tool": step_b["tool"]
-            })
-
     return findings
+
+def semantic_diff(steps_a, steps_b):
+    calls_a = [s for s in steps_a if s["type"] == "tool_call"]
+    calls_b = [s for s in steps_b if s["type"] == "tool_call"]
+
+    differences = []
+    min_length = min(len(calls_a), len(calls_b))
+
+    for i in range(min_length):
+        step_a = calls_a[i]
+        step_b = calls_b[i]
+
+        if step_a["tool"] != step_b["tool"]:
+            continue
+
+        args_a = step_a["arguments"]
+        args_b = step_b["arguments"]
+        all_keys = set(args_a) | set(args_b)
+
+        for key in all_keys:
+            if key not in args_a:
+                differences.append({
+                    "position": i, "tool": step_a["tool"], "argument": key,
+                    "change": "added", "version_b_value": args_b[key]
+                })
+            elif key not in args_b:
+                differences.append({
+                    "position": i, "tool": step_a["tool"], "argument": key,
+                    "change": "removed", "version_a_value": args_a[key]
+                })
+            elif args_a[key] != args_b[key]:
+                differences.append({
+                    "position": i, "tool": step_a["tool"], "argument": key,
+                    "change": "modified",
+                    "version_a_value": args_a[key], "version_b_value": args_b[key]
+                })
+
+    return differences
 
 def argument_diff(steps_a, steps_b):
     from trace_parser import semantic_diff
@@ -83,6 +105,45 @@ def response_diverges_from_output(trace):
             "reason": "No tool_call present, but agent gave a factual-sounding response"
         }]
     return []
+def error_not_acknowledged(trace):
+    findings = []
+    response = trace.get("final_agent_response", "").lower()
+    acknowledgment_phrases = [
+        "couldn't", "could not", "not found", "unable",
+        "please check", "sorry", "can't find", "cannot find"
+    ]
+
+    for step in trace["steps"]:
+        if step["type"] != "tool_call":
+            continue
+        output = step.get("output", {})
+        if "error" in output:
+            if not any(phrase in response for phrase in acknowledgment_phrases):
+                findings.append({
+                    "pattern": "error_not_acknowledged",
+                    "run_id": trace.get("run_id"),
+                    "tool_error": output["error"],
+                    "final_agent_response": trace.get("final_agent_response"),
+                    "reason": "Tool returned an error, but response doesn't acknowledge failure"
+                })
+    return findings
+
+
+def blind_tool_call(trace):
+    findings = []
+    for step in trace["steps"]:
+        if step["type"] != "tool_call":
+            continue
+        args = step.get("arguments", {})
+        order_id = args.get("order_id")
+        if not order_id:
+            findings.append({
+                "pattern": "blind_tool_call",
+                "run_id": trace.get("run_id"),
+                "tool": step["tool"],
+                "reason": "Tool called without a valid order_id argument"
+            })
+    return findings
 
 if __name__ == "__main__":
     import sys
@@ -99,3 +160,6 @@ if __name__ == "__main__":
     print(extra_tool_call(trace_a10["steps"], trace_b7["steps"]))
     print(argument_diff(trace_a10["steps"], trace_b7["steps"]))
     print(response_diverges_from_output(trace_b7))
+    trace_a3 = data["dataset"]["version_a"][2]  # A-003, the ORD-9999 error case
+    print(error_not_acknowledged(trace_a3))   # should be [] — it WAS acknowledged well
+    print(blind_tool_call(trace_a3))          # should be [] — order_id was provided

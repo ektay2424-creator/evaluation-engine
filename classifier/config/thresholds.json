@@ -1,0 +1,10 @@
+{
+  "warn_threshold": 5,
+  "pattern_weights": {
+    "wrong_tool_called": 8,
+    "blind_tool_call": 8,
+    "argument_diff": 5,
+    "extra_tool_call": 2
+  },
+  "consistency_threshold_std_ms": 200
+}

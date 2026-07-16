@@ -32,6 +32,37 @@ def match_patterns(trace_a, trace_b):
         "regression_detected": len(findings) > 0
     }
 
+from pattern_definitions import (
+    missing_tool_call,
+    wrong_tool_called,
+    extra_tool_call,
+    argument_diff,
+    response_diverges_from_output,
+    error_not_acknowledged,
+    blind_tool_call,
+)
+
+
+def match_patterns(trace_a, trace_b):
+    steps_a = trace_a["steps"]
+    steps_b = trace_b["steps"]
+
+    findings = []
+    findings.extend(missing_tool_call(steps_a, steps_b))
+    findings.extend(wrong_tool_called(steps_a, steps_b))
+    findings.extend(extra_tool_call(steps_a, steps_b))
+    findings.extend(argument_diff(steps_a, steps_b))
+    findings.extend(response_diverges_from_output(trace_b))
+    findings.extend(error_not_acknowledged(trace_b))
+    findings.extend(blind_tool_call(trace_b))
+
+    return {
+        "run_a": trace_a.get("run_id"),
+        "run_b": trace_b.get("run_id"),
+        "findings": findings,
+        "regression_detected": len(findings) > 0
+    }
+
 if __name__ == "__main__":
     from trace_parser import load_trace
 
