@@ -50,33 +50,65 @@ def semantic_diff(steps_a, steps_b):
         step_b = steps_b[i]
 
         if step_a["type"] != "tool_call" or step_b["type"] != "tool_call":
-            continue  # skip non-tool-call steps (user_message, assistant_message, etc.)
+            continue
 
         if step_a["tool"] != step_b["tool"]:
-            continue  # different tools entirely — exact_diff already flags this
+            continue
 
         args_a = step_a["arguments"]
         args_b = step_b["arguments"]
 
-        for key in args_a:
-            if key in args_b and args_a[key] != args_b[key]:
+        all_keys = set(args_a) | set(args_b)
+
+        for key in all_keys:
+            if key not in args_a:
                 differences.append({
                     "position": i,
                     "tool": step_a["tool"],
                     "argument": key,
+                    "change": "added",
+                    "version_b_value": args_b[key]
+                })
+            elif key not in args_b:
+                differences.append({
+                    "position": i,
+                    "tool": step_a["tool"],
+                    "argument": key,
+                    "change": "removed",
+                    "version_a_value": args_a[key]
+                })
+            elif args_a[key] != args_b[key]:
+                differences.append({
+                    "position": i,
+                    "tool": step_a["tool"],
+                    "argument": key,
+                    "change": "modified",
                     "version_a_value": args_a[key],
                     "version_b_value": args_b[key]
                 })
 
     return differences
 
+def get_latencies(trace):
+    latencies = []
+    for step in trace["steps"]:
+        if step["type"] == "tool_call":
+            latencies.append(step["latency_ms"])
+    return latencies
+
 import statistics
 
 
 def check_consistency(latencies, threshold_std=1.0):
+    if len(latencies) < 2:
+        return {
+            "mean_latency": latencies[0] if latencies else None,
+            "std_latency": None,
+            "is_consistent": True
+        }
+
     mean_latency = statistics.mean(latencies)
     std_latency = statistics.stdev(latencies)
-
     is_consistent = std_latency <= threshold_std
 
     return {
@@ -86,25 +118,28 @@ def check_consistency(latencies, threshold_std=1.0):
     }
 
 
-
 if __name__ == "__main__":
     data = load_trace("mock_trace/real_traces.json")
     trace_a1 = data["dataset"]["version_a"][0]
 
-    print(trace_a1["steps"][0])   # <-- add this line to inspect the real structure
-
+    print(trace_a1["steps"][0])
     print(get_tool_sequence(trace_a1))
+    print(get_args(trace_a1, 1))
+    print(get_args(trace_a1, 0))
+    print(semantic_diff(trace_a1["steps"], data["dataset"]["version_b"][0]["steps"]))
 
-print(get_args(trace_a1, 1))   
-print(get_args(trace_a1, 0))   
-print(semantic_diff(trace_a1["steps"], data["dataset"]["version_b"][0]["steps"]))
-trace_a10 = data["dataset"]["version_a"][9]   # A-010
-trace_b7 = data["dataset"]["version_b"][6]    # B-007
+    trace_a10 = data["dataset"]["version_a"][9]
+    trace_b7 = data["dataset"]["version_b"][6]
+    print(get_tool_sequence(trace_a10))
+    print(get_tool_sequence(trace_b7))
+    print(exact_diff(get_tool_sequence(trace_a10), get_tool_sequence(trace_b7)))
 
-print(get_tool_sequence(trace_a10))
-print(get_tool_sequence(trace_b7))
+    print(get_latencies(trace_a1))
+    print(get_latencies(trace_a10))
 
-seq_a10 = get_tool_sequence(trace_a10)
-seq_b7 = get_tool_sequence(trace_b7)
+    all_latencies = []
+    for run in data["dataset"]["version_a"]:
+        all_latencies.extend(get_latencies(run))
+    print(all_latencies)
 
-print(exact_diff(seq_a10, seq_b7))
+    print(check_consistency(all_latencies))
