@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Evaluation Report",
+  "type": "object",
+  "properties": {
+    "comparison_id": {
+      "type": "string",
+      "description": "Unique identifier for this comparison, e.g. 'A-010_vs_B-007'"
+    },
+    "task_id": {
+      "type": ["string", "null"],
+      "description": "Identifier for the task/scenario this run belongs to. Null if task categorization isn't yet in use."
+    },
+    "version_a": {
+      "type": ["string", "null"],
+      "description": "Run ID of the baseline version"
+    },
+    "version_b": {
+      "type": ["string", "null"],
+      "description": "Run ID of the version being evaluated"
+    },
+    "regression_detected": {
+      "type": "boolean",
+      "description": "True if any pattern findings were detected between version_a and version_b"
+    },
+    "confidence_score": {
+      "type": ["number", "null"],
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "How confident the engine is that version_b is safe to deploy. Computed as: 0.0 if any hard gate fired; 1.0 if no findings at all; otherwise 1.0 - (total_weighted_score / 20), clamped between 0 and 1. This is a simple heuristic, not a statistically validated model."
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": ["low", "medium", "high"],
+      "description": "Derived from the classifier verdict: pass -> low, warn -> medium, fail -> high"
+    },
+    "changes": {
+      "type": "array",
+      "description": "Raw list of pattern findings detected between version_a and version_b",
+      "items": {
+        "type": "object",
+        "properties": {
+          "pattern": {"type": "string"}
+        },
+        "required": ["pattern"]
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "latency_ms_a": {"type": ["number", "null"]},
+        "latency_ms_b": {"type": ["number", "null"]},
+        "latency_change_pct": {"type": ["number", "null"]},
+        "task_completed_a": {"type": ["boolean", "null"]},
+        "task_completed_b": {"type": ["boolean", "null"]},
+        "cost": {"type": ["number", "null"], "description": "Not yet tracked; always null until cost data exists"}
+      },
+      "required": ["latency_ms_a", "latency_ms_b", "latency_change_pct", "task_completed_a", "task_completed_b", "cost"]
+    },
+    "matched_pattern": {
+      "type": ["string", "null"],
+      "description": "The single highest-severity pattern matched, or null if no findings"
+    },
+    "hard_gate_triggered": {
+      "type": "boolean",
+      "description": "True if any hard-gate pattern fired, forcing an automatic fail regardless of score"
+    },
+    "reasons": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Short human-readable explanations backing the verdict"
+    }
+  },
+  "required": [
+    "comparison_id",
+    "regression_detected",
+    "risk_level",
+    "changes",
+    "metrics",
+    "matched_pattern",
+    "hard_gate_triggered",
+    "reasons"
+  ]
+}

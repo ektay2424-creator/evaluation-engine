@@ -72,7 +72,10 @@ def build_report(trace_a, trace_b, findings, classification):
         "version_a": trace_a.get("run_id"),
         "version_b": trace_b.get("run_id"),
         "regression_detected": len(findings) > 0,
-        "confidence_score": None,
+        "confidence_score": compute_confidence(
+        gate_result["gate_failed"],
+        classification["score_result"]["total_score"]
+        ),
         "risk_level": risk_map[verdict],
         "changes": findings,
         "metrics": _build_metrics(trace_a, trace_b),
@@ -80,6 +83,17 @@ def build_report(trace_a, trace_b, findings, classification):
         "hard_gate_triggered": gate_result["gate_failed"],
         "reasons": reasons,
     }
+
+def compute_confidence(gate_failed, total_score, max_reasonable_score=20):
+    if gate_failed:
+        return 0.0
+
+    if total_score == 0:
+        return 1.0
+
+    # Higher score = lower confidence, scaled and clamped between 0 and 1
+    confidence = 1.0 - (total_score / max_reasonable_score)
+    return round(max(0.0, min(1.0, confidence)), 2)
 
 if __name__ == "__main__":
     import sys
@@ -109,3 +123,13 @@ if __name__ == "__main__":
     report_clean = build_report(trace_a1, trace_b1, result_clean["findings"], classification_clean)
 
     print(json.dumps(report_clean, indent=2))
+    from classifier import classify
+
+    fake_findings = [
+        {"pattern": "argument_diff", "position": 0, "tool": "lookup_order",
+         "argument": "order_id", "change": "modified",
+         "version_a_value": "ORD-1001", "version_b_value": "ORD-1002"}
+    ]
+    fake_classification = classify(fake_findings)
+    fake_report = build_report(trace_a1, trace_b1, fake_findings, fake_classification)
+    print(json.dumps(fake_report, indent=2))

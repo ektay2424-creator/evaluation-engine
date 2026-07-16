@@ -1,0 +1,4 @@
+{
+  "_comment": "Task categories are not yet in use — this dataset has a single implicit task type (order status lookup). This file is a placeholder for future task-specific severity tuning once Module 1 provides traces spanning multiple task types.",
+  "default": 1.0
+}
